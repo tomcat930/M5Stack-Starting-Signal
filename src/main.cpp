@@ -7,11 +7,12 @@ unsigned long start_time;
 unsigned long count_time;
 unsigned long buttun_push_time;
 
-int count_mode = 0;
+int count_state = 0;
 
-const int countdown_mode = 1;
-const int countup_mode = 2;
-const int countstop_mode = 3;
+const int initial_state = 0;
+const int countdown_state = 1;
+const int countup_state = 2;
+const int countstop_state = 3;
 
 int countstop_time = 0;
 int countstop_enable_time = 0;
@@ -24,9 +25,9 @@ int ms;
 const int countdown_xpos = 128;
 const int countdown_ypos = 120;
 
-int signal_xpos;
-int signal_ypos = 60;
-int signal_size = 30;
+const int signal_xpos = 160;
+const int signal_ypos = 60;
+const int signal_size = 30;
 
 void beep(int beepTime) {
   M5.Speaker.beep();
@@ -35,27 +36,36 @@ void beep(int beepTime) {
 }
 
 void btnAdisplayText(String text) {
-  M5.Lcd.setTextFont(1);
   M5.Lcd.setTextColor(WHITE, BLACK);
-  M5.Lcd.setTextSize(2);
   M5.Lcd.setTextDatum(1);
+  M5.Lcd.setTextFont(1);
+  M5.Lcd.setTextSize(2);
   M5.Lcd.drawString(text, 68, 220);
 }
 
 void btnCdisplayText(String text) {
-  M5.Lcd.setTextFont(1);
   M5.Lcd.setTextColor(WHITE, BLACK);
-  M5.Lcd.setTextSize(2);
   M5.Lcd.setTextDatum(1);
+  M5.Lcd.setTextFont(1);
+  M5.Lcd.setTextSize(2);
   M5.Lcd.drawString(text, 253, 220);
 }
 
 void drawStartDisplay() {
-  M5.Lcd.setCursor(31, 110, 1);
   M5.Lcd.setTextColor(WHITE, BLACK);
+  M5.Lcd.setTextDatum(1);
+  M5.Lcd.setTextFont(1);
   M5.Lcd.setTextSize(3);
-  M5.Lcd.print("COUNT START APP");
+  M5.Lcd.drawString("TIME COUNTER APP", 160, 110);
   btnAdisplayText("START");
+}
+
+void drawCountdownDisplay(int time) {
+  M5.Lcd.setTextColor(WHITE, BLACK);
+  M5.Lcd.setTextDatum(1);
+  M5.Lcd.setTextFont(7);
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.drawString(String(time), 160, 120);
 }
 
 void drawTimeDisplay(unsigned long time) {
@@ -83,9 +93,9 @@ void drawTimeDisplay(unsigned long time) {
 }
 
 void resetCount() {
-  count_mode = 0;
+  count_state = initial_state;
   countstop_time = 0;
-  count_time = countstop_mode;
+  count_time = countstop_state;
   M5.Lcd.fillScreen(TFT_BLACK);
   drawStartDisplay();
 }
@@ -94,78 +104,73 @@ void setup() {
   M5.begin();
   M5.Speaker.begin();
   M5.Speaker.setVolume(beep_volume);
-  drawStartDisplay();
 }
 
 void loop() {
   M5.update();
   current_time = millis();
 
-  if (M5.BtnA.wasPressed() && count_mode == 0) {
-    count_mode = countdown_mode;
+  if (M5.BtnA.wasPressed() && count_state == initial_state) {
+    count_state = countdown_state;
     count_time = 3;
     buttun_push_time = current_time;
     M5.Lcd.fillScreen(TFT_BLACK);
-    M5.Lcd.setTextColor(WHITE, BLACK);
-    M5.Lcd.setTextFont(7);
-    M5.Lcd.setTextSize(2);
   }
 
   // timer stop
-  if (M5.BtnA.wasPressed() && count_mode == countup_mode) {
+  if (M5.BtnA.wasPressed() && count_state == countup_state) {
     countstop_enable_time = current_time;
-    count_mode = countstop_mode;
+    count_state = countstop_state;
     btnAdisplayText("RESTART");
     btnCdisplayText("RESET");
-  } else if (M5.BtnA.wasPressed() && count_mode == countstop_mode) {
-    count_mode = countup_mode;
+  } else if (M5.BtnA.wasPressed() && count_state == countstop_state) {
+    count_state = countup_state;
     countstop_disable_time = current_time;
     countstop_time =
         countstop_disable_time - countstop_enable_time + countstop_time;
     M5.Lcd.fillScreen(TFT_BLACK);
   }
 
-  if (M5.BtnC.wasPressed() && count_mode == countup_mode) {
+  if (M5.BtnC.wasPressed() && count_state == countup_state) {
     resetCount();
   }
 
-  if (M5.BtnC.wasPressed() && count_mode == countstop_mode) {
+  if (M5.BtnC.wasPressed() && count_state == countstop_state) {
     resetCount();
   }
 
-  switch (count_mode) {
-    case countdown_mode:
+  switch (count_state) {
+    case 0:
+      drawStartDisplay();
+      break;
+    case countdown_state:
       if (current_time == buttun_push_time + 1000) {
         M5.Lcd.fillCircle(70, signal_ypos, signal_size, RED);
-        M5.Lcd.setCursor(countdown_xpos, countdown_ypos, 7);
-        M5.Lcd.print(count_time);
+        drawCountdownDisplay(count_time);
         beep(100);
 
       } else if (current_time == buttun_push_time + 2000) {
         M5.Lcd.fillCircle(160, signal_ypos, signal_size, RED);
-        M5.Lcd.setCursor(countdown_xpos, countdown_ypos, 7);
-        M5.Lcd.print(--count_time);
+        drawCountdownDisplay(--count_time);
         beep(100);
 
       } else if (current_time == buttun_push_time + 3000) {
         M5.Lcd.fillCircle(250, signal_ypos, signal_size, RED);
-        M5.Lcd.setCursor(countdown_xpos, countdown_ypos, 7);
-        M5.Lcd.print(--count_time);
+        drawCountdownDisplay(--count_time);
         beep(100);
 
       } else if (current_time == buttun_push_time + 4000) {
         start_time = current_time;
         M5.Lcd.fillScreen(TFT_BLACK);
-        M5.Lcd.setCursor(countdown_xpos, countdown_ypos, 7);
-        M5.Lcd.print(--count_time);
+        drawCountdownDisplay(--count_time);
         beep(400);
 
         M5.Lcd.fillScreen(TFT_BLACK);
-        count_mode = countup_mode;
+        count_state = countup_state;
       }
       break;
 
-    case countup_mode:
+    case countup_state:
       count_time = current_time - start_time;
       count_time -= countstop_time;
       btnAdisplayText("STOP");
@@ -173,7 +178,7 @@ void loop() {
       drawTimeDisplay(count_time);
       break;
 
-    case countstop_mode:
+    case countstop_state:
       drawTimeDisplay(count_time);
       break;
 
