@@ -18,8 +18,6 @@ int ms;
 void setup() {
   M5.begin();
 
-  Serial.begin(115200);
-
   M5.Speaker.begin();
   M5.Speaker.setVolume(beep_volume);
 
@@ -116,9 +114,36 @@ void loop() {
         start_time = current_time;
       }
       break;
+
     case count_up:
+      count_time = current_time - start_time;
+
+      M5.Lcd.setTextSize(1);
+      M5.Lcd.setCursor(52, count_ypos, 7);
+      M5.Lcd.setTextColor(RED, BLACK);
+
+      // time calculation
+      mm = (count_time / 60000);
+      ss = (count_time / 1000) % 60;
+      ms = (count_time % 1000) / 10;
+
+      // time display
+      if (mm < 10) {
+        M5.Lcd.print("0" + String(mm));
+      } else {
+        M5.Lcd.print(mm);
+      }
+      M5.Lcd.print(":");
+      if (ss < 10) {
+        M5.Lcd.print("0" + String(ss));
+      } else {
+        M5.Lcd.print(ss);
+      }
+      M5.Lcd.print(".");
+      M5.Lcd.print(ms);
 
       break;
+
     default:
       break;
   }
