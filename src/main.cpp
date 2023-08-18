@@ -56,7 +56,7 @@ void drawStartDisplay() {
   M5.Lcd.setTextDatum(1);
   M5.Lcd.setTextFont(1);
   M5.Lcd.setTextSize(3);
-  M5.Lcd.drawString("TIME COUNTER APP", 160, 110);
+  M5.Lcd.drawString("TIME COUNTER APP", 160, 100);
   btnAdisplayText("START");
 }
 
