@@ -1,1 +1,3 @@
-# M5Stack-Starting-Signal
+# M5Stack-Time-Counter
+
+Countdown and time measurement until the start of the race.
