@@ -162,7 +162,11 @@ void loop() {
       } else if (current_time == buttun_push_time + 4000) {
         start_time = current_time;
         M5.Lcd.fillScreen(TFT_BLACK);
-        drawCountdownDisplay(--count_time);
+        M5.Lcd.setTextColor(GREEN, BLACK);
+        M5.Lcd.setTextDatum(1);
+        M5.Lcd.setTextFont(1);
+        M5.Lcd.setTextSize(7);
+        M5.Lcd.drawString(" START!!", 160, 80);
         beep(400);
 
         M5.Lcd.fillScreen(TFT_BLACK);
