@@ -93,8 +93,8 @@ void drawTimeDisplay(unsigned long time) {
 }
 
 void resetCount() {
-  count_state = initial_state;
   countstop_time = 0;
+  count_state = initial_state;
   count_time = countstop_state;
   M5.Lcd.fillScreen(TFT_BLACK);
   drawStartDisplay();
@@ -140,7 +140,7 @@ void loop() {
   }
 
   switch (count_state) {
-    case 0:
+    case initial_state:
       drawStartDisplay();
       break;
     case countdown_state:
